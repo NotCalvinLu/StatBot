@@ -49,12 +49,12 @@ namespace StatBot
 
         public void updateCommand(CommandEventArgs e)
         {
-
+            e.Channel.SendMessage("update");
         }
 
         public void viewCommand(CommandEventArgs e)
         {
-
+            e.Channel.SendMessage("view");
         }
     }
 }
