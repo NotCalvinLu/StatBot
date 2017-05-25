@@ -216,8 +216,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ImgurWrapper.cs" />
+    <Compile Include="PlayerQuestions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SheetsWrapper.cs" />
     <Compile Include="StatBot.cs" />
   </ItemGroup>
   <ItemGroup>
