@@ -10,6 +10,7 @@ namespace StatBot
     {
         static void Main(string[] args)
         {
+            new StatBot();
         }
     }
 }
