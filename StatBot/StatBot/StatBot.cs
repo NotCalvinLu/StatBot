@@ -17,8 +17,12 @@ namespace StatBot
 
         Dictionary<ulong, PlayerQuestions> questions = new Dictionary<ulong, PlayerQuestions>();
 
+        public ImgurWrapper imgur;
+
         public StatBot()
         {
+            imgur = new ImgurWrapper();
+
             discord = new DiscordClient();
 
             discord.UsingCommands(x =>
@@ -67,7 +71,7 @@ namespace StatBot
             }
             else
             {
-                questions.Add(e.User.Id, new PlayerQuestions(e.User));
+                questions.Add(e.User.Id, new PlayerQuestions(e.User, this));
             }
 
             e.Channel.SendMessage($"{e.User.Mention} Check your PMs :)");
@@ -106,7 +110,7 @@ namespace StatBot
             }
             else
             {
-                questions.Add(e.User.Id, new PlayerQuestions(e.User));
+                questions.Add(e.User.Id, new PlayerQuestions(e.User, this));
             }
         }
 

@@ -1,7 +1,9 @@
 ﻿using Discord;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,6 +11,8 @@ namespace StatBot
 {
     class PlayerQuestions
     {
+        StatBot main;
+
         public enum CharClass { BERSERKER, DARK_KNIGHT, KUNOICHI, MAEHWA, MUSA, NINJA, RANGER, SORCERESS, TAMER, VALKYRIE, WARRIOR, WITCH, WIZARD }
 
         int curQuestion = 0;
@@ -31,7 +35,7 @@ namespace StatBot
         string otherInfo;
         /////////////////////////////////////////////////
 
-        public PlayerQuestions(User user)
+        public PlayerQuestions(User user, StatBot main)
         {
             this.user = user;
             userID = user.Id;
@@ -62,33 +66,30 @@ namespace StatBot
                     question = $"What is your __Main Character__ Class? Please type just the number from the following list:\n{getClassList()}";
                     break;
                 case 3:
-                    question = $"What __class__ is {charName}?";
-                    break;
-                case 4:
                     question = $"What __level__ is {charName}?";
                     break;
-                case 5:
+                case 4:
                     question = $"How much __non-awakened AP__ does {charName} have?";
                     break;
-                case 6:
+                case 5:
                     question = $"How much __awakened AP__ does {charName} have?";
                     break;
-                case 7:
+                case 6:
                     question = $"How much __DP__ does {charName} have?";
                     break;
-                case 8:
+                case 7:
                     question = "Please open the __P__ and ___I__ menus in BDO take a screenshot of your stats. Just send me the image in here.";
                     break;
-                case 9:
+                case 8:
                     question = $"What is the next gear upgrade planned for {charName}? (Type as much as you need)";
                     break;
-                case 10:
+                case 9:
                     question = $"What is your current level goal for {charName}? (Type as much as you need)";
                     break;
-                case 11:
+                case 10:
                     question = "Do you have M2 trading on any of your characters or are you working towards it? How many crates do you sell per month?";
                     break;
-                case 12:
+                case 11:
                     question = "Is there any other information that you think you'd like to include here? (Type as much as you want, type \"no\" if not)";
                     break;
             }
@@ -100,23 +101,97 @@ namespace StatBot
         {
             switch (curQuestion)
             {
-                //TODO question answer logic.
+                case 0:
+                    familyName = message;
+                    curQuestion++;
+                    break;
+                case 1:
+                    charName = message;
+                    curQuestion++;
+                    break;
+                case 2:
+                    int num;
+                    if (int.TryParse(message, out num))
+                    {
+                        charClass = (CharClass)num;
+                        curQuestion++;
+                    }
+                    break;
+                case 3:
+                    if (int.TryParse(message, out level))
+                    {
+                        curQuestion++;
+                    }
+                    break;
+                case 4:
+                    if (int.TryParse(message, out ap))
+                    {
+                        curQuestion++;
+                    }
+                    break;
+                case 5:
+                    if (int.TryParse(message, out awakenAp))
+                    {
+                        curQuestion++;
+                    }
+                    break;
+                case 6:
+                    if (int.TryParse(message, out dp))
+                    {
+                        curQuestion++;
+                    }
+                    break;
+                case 8:
+                    nextUpgrade = message;
+                    curQuestion++;
+                    break;
+                case 9:
+                    nextLevel = message;
+                    curQuestion++;
+                    break;
+                case 10:
+                    crateQuestion = message;
+                    curQuestion++;
+                    break;
+                case 11:
+                    otherInfo = message;
+                    curQuestion++;
+                    break;
             }
 
             askQuestion();
         }
 
-        public void processFile(Message.Attachment file)
+        public void processFile(Message.Attachment att)
         {
-            if (curQuestion == 8)
+            if (curQuestion == 7)
             {
-                //TODO Imgur stuff.
+                string location = $"images/{att.Filename}";
+
+                using (WebClient client = new WebClient())
+                {
+                    client.DownloadFile(new Uri(att.Url), location);
+                }
+
+                screenshotUrl = main.imgur.uploadImage(location);
+
+                File.Delete(location);
+
+                if (!screenshotUrl.Equals(""))
+                {
+                    curQuestion++;
+                }
             }
 
             askQuestion();
         }
 
         public string getClassList()
+        {
+            return "";
+        }
+
+        public string getClassString(int num)
         {
             return "";
         }
