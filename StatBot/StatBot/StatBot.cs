@@ -12,6 +12,11 @@ namespace StatBot
     {
         DiscordClient discord;
 
+        ulong serverID = 155415749962366976;
+        string sheetLocation = "https://docs.google.com/spreadsheets/d/1QjRNBh9_2SOdPQPN2JAjW_2TWl_LOGAGGsFD3ZNqNG0/edit?usp=sharing";
+
+        Dictionary<ulong, PlayerQuestions> questions = new Dictionary<ulong, PlayerQuestions>();
+
         public StatBot()
         {
             discord = new DiscordClient();
@@ -20,6 +25,11 @@ namespace StatBot
             {
                 x.PrefixChar = '!';
             });
+
+            discord.MessageReceived += (s, e) =>
+            {
+                messageReceived(e);
+            };
 
             var commands = discord.GetService<CommandService>();
 
@@ -48,12 +58,64 @@ namespace StatBot
 
         public void updateCommand(CommandEventArgs e)
         {
-            e.Channel.SendMessage("update");
+            if (e.Channel.Id != 280444392756609024) return;
+
+            PlayerQuestions playerQuestions;
+            if (questions.TryGetValue(e.User.Id, out playerQuestions))
+            {
+                playerQuestions.askQuestion();
+            }
+            else
+            {
+                questions.Add(e.User.Id, new PlayerQuestions(e.User));
+            }
+
+            e.Channel.SendMessage($"{e.User.Mention} Check your PMs :)");
         }
 
         public void viewCommand(CommandEventArgs e)
         {
-            e.Channel.SendMessage("view");
+            if (e.Channel.Id != 280444392756609024) return;
+
+            e.Channel.SendMessage($"View guild stats here:\n{sheetLocation}");
+        }
+
+        public void messageReceived(MessageEventArgs e)
+        {
+            if (!e.Channel.IsPrivate || e.User.IsBot) return;
+
+            if (!isMember(e.User.Id))
+            {
+                e.User.SendMessage("Oh no! It looks like you don't have the Member role on Element's discord.\n\n" +
+                    $"If this is a mistake and you do actually have the member role, just shoot {discord.GetServer(serverID).GetUser(132697256900952064).Mention} " +
+                    "a quick PM. This is a bug that sometimes happens to new members who recently joined the Discord. I blame the current Discord API >:[");
+                return;
+            }
+
+            PlayerQuestions playerQuestions;
+            if (questions.TryGetValue(e.User.Id, out playerQuestions))
+            {
+                if (e.Message.Attachments.Length > 0)
+                {
+                    playerQuestions.processFile(e.Message.Attachments[0]);
+                }
+                else
+                {
+                    playerQuestions.processMessage(e.Message.RawText);
+                }
+            }
+            else
+            {
+                questions.Add(e.User.Id, new PlayerQuestions(e.User));
+            }
+        }
+
+        public bool isMember(ulong id)
+        {
+            Server server = discord.GetServer(serverID);
+            Role memberRole = server.GetRole(317760845771702272);
+
+            return server.GetUser(id).HasRole(memberRole);
         }
     }
 }
