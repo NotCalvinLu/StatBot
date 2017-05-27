@@ -27,7 +27,6 @@ namespace StatBot
 
         public string uploadImage(string location)
         {
-            main.print("Uploading image.");
             try
             {
                 var endpoint = new ImageEndpoint(client);
@@ -36,12 +35,10 @@ namespace StatBot
                 {
                     image = endpoint.UploadImageStreamAsync(fs).GetAwaiter().GetResult();
                 }
-                main.print("Image uploaded.");
                 return image.Link;
             }
             catch (ImgurException)
             {
-                main.print("Error Uploading image.");
                 return "";
             }
         }

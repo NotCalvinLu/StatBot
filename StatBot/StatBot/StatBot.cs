@@ -57,6 +57,11 @@ namespace StatBot
             });
         }
 
+        public void printCurrentUserCount()
+        {
+            print($"Current Users Doing Questions: {questions.Count}");
+        }
+
         public void print(string msg)
         {
             Console.WriteLine($"{DateTime.Now.ToLongTimeString()}: {msg}");
@@ -90,6 +95,7 @@ namespace StatBot
         {
             questions.Remove(player.userID);
             sheets.UpdateUser(player);
+            printCurrentUserCount();
         }
 
         public void messageReceived(MessageEventArgs e)

@@ -49,6 +49,7 @@ namespace StatBot
 
             user.SendMessage("Hello! I am just going to ask you a few questions about your character in BDO. Just chat back to me your answers.");
             askQuestion();
+            main.printCurrentUserCount();
         }
 
         public void askQuestion()
