@@ -66,12 +66,6 @@ namespace StatBot
         {
             if (e.Channel.Id != 280444392756609024) return;
 
-            if (e.User.Id != 132697256900952064)
-            {
-                e.Channel.SendMessage("StatBot is currently in admin test mode. Please try again later.");
-                return;
-            }
-
             PlayerQuestions playerQuestions;
             if (questions.TryGetValue(e.User.Id, out playerQuestions))
             {
