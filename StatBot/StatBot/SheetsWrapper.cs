@@ -122,7 +122,7 @@ namespace StatBot
         public IList<IList<Object>> GetTableValues()
         {
             string spreadSheetId = "1QjRNBh9_2SOdPQPN2JAjW_2TWl_LOGAGGsFD3ZNqNG0";
-            string range = "PlayerStats!A2:N";
+            string range = "PlayerStats!A2:O";
             SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadSheetId, range);
 
             ValueRange response = request.Execute();
