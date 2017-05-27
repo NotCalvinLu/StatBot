@@ -171,13 +171,15 @@ namespace StatBot
         {
             if (curQuestion == 7)
             {
+                user.SendMessage("Please wait while I upload this image to Imgur...");
+
                 string location = $"images/{att.Filename}";
 
                 using (WebClient client = new WebClient())
                 {
                     client.DownloadFile(new Uri(att.Url), location);
                 }
-
+                
                 screenshotUrl = main.imgur.uploadImage(location);
                 screenshotUrl = String.Format("=HYPERLINK(\"{0}\",\"{1}\")", screenshotUrl, "Gear Screenshot!");
 
