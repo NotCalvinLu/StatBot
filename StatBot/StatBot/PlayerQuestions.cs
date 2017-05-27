@@ -13,13 +13,13 @@ namespace StatBot
     {
         StatBot main;
 
-        public enum CharClass { BERSERKER, DARK_KNIGHT, KUNOICHI, MAEHWA, MUSA, NINJA, RANGER, SORCERESS, TAMER, VALKYRIE, WARRIOR, WITCH, WIZARD }
+        public enum CharClass { Berserker, Dark_Knight, Kunoichi, Maehwa, Musa, Ninja, Ranger, Sorceress, Tamer, Valkyrie, Warrior, Witch, Wizard }
 
         int curQuestion = 0;
         User user;
 
         //Information for the bot to collect on the user:
-        ulong userID;
+        public ulong userID;
         string discordName;
         string familyName;
         string charName;
@@ -38,6 +38,7 @@ namespace StatBot
         public PlayerQuestions(User user, StatBot main)
         {
             this.user = user;
+            this.main = main;
             userID = user.Id;
             discordName = user.Nickname;
 
@@ -92,6 +93,10 @@ namespace StatBot
                 case 11:
                     question = "Is there any other information that you think you'd like to include here? (Type as much as you want, type \"no\" if not)";
                     break;
+                case 12:
+                    question = $"Thanks for taking the time to enter your stats into our database. Stats can be viewed here:\n{main.sheetLocation}";
+                    main.updateUser(this);
+                    break;
             }
 
             user.SendMessage(question);
@@ -111,14 +116,14 @@ namespace StatBot
                     break;
                 case 2:
                     int num;
-                    if (int.TryParse(message, out num))
+                    if (int.TryParse(message, out num) && num >= 0 && num < Enum.GetNames(typeof(CharClass)).Length)
                     {
                         charClass = (CharClass)num;
                         curQuestion++;
                     }
                     break;
                 case 3:
-                    if (int.TryParse(message, out level))
+                    if (int.TryParse(message, out level) && level >= 1)
                     {
                         curQuestion++;
                     }
@@ -174,6 +179,7 @@ namespace StatBot
                 }
 
                 screenshotUrl = main.imgur.uploadImage(location);
+                screenshotUrl = String.Format("=HYPERLINK(\"{0}\",\"{1}\")", screenshotUrl, "Gear Screenshot!");
 
                 File.Delete(location);
 
@@ -188,12 +194,42 @@ namespace StatBot
 
         public string getClassList()
         {
-            return "";
+            string list = "";
+
+            string[] names = Enum.GetNames(typeof(CharClass));
+
+            for (int i = 0; i < names.Length; i++)
+            {
+                list += i + " - " + names[i].Replace("_", " ") + "\n";
+            }
+
+            return list;
         }
 
-        public string getClassString(int num)
+        public string getClassString(CharClass charClass)
         {
-            return "";
+            return charClass.ToString().Replace("_", " ");
+        }
+
+        public List<object> GetList()
+        {
+            return new List<object> {
+                Convert.ToString(userID),
+                DateTime.Today.ToString("d"),
+                discordName,
+                familyName,
+                charName,
+                getClassString(charClass),
+                level,
+                ap,
+                awakenAp,
+                dp,
+                screenshotUrl,
+                nextUpgrade,
+                nextLevel,
+                crateQuestion,
+                otherInfo
+            };
         }
     }
 }

@@ -13,15 +13,17 @@ namespace StatBot
         DiscordClient discord;
 
         ulong serverID = 155415749962366976;
-        string sheetLocation = "https://docs.google.com/spreadsheets/d/1QjRNBh9_2SOdPQPN2JAjW_2TWl_LOGAGGsFD3ZNqNG0/edit?usp=sharing";
+        public string sheetLocation = "https://docs.google.com/spreadsheets/d/1QjRNBh9_2SOdPQPN2JAjW_2TWl_LOGAGGsFD3ZNqNG0/edit?usp=sharing";
 
         Dictionary<ulong, PlayerQuestions> questions = new Dictionary<ulong, PlayerQuestions>();
 
         public ImgurWrapper imgur;
+        SheetsWrapper sheets;
 
         public StatBot()
         {
-            imgur = new ImgurWrapper();
+            imgur = new ImgurWrapper(this);
+            sheets = new SheetsWrapper(this);
 
             discord = new DiscordClient();
 
@@ -64,6 +66,12 @@ namespace StatBot
         {
             if (e.Channel.Id != 280444392756609024) return;
 
+            if (e.User.Id != 132697256900952064)
+            {
+                e.Channel.SendMessage("StatBot is currently in admin test mode. Please try again later.");
+                return;
+            }
+
             PlayerQuestions playerQuestions;
             if (questions.TryGetValue(e.User.Id, out playerQuestions))
             {
@@ -82,6 +90,12 @@ namespace StatBot
             if (e.Channel.Id != 280444392756609024) return;
 
             e.Channel.SendMessage($"View guild stats here:\n{sheetLocation}");
+        }
+
+        public void updateUser(PlayerQuestions player)
+        {
+            questions.Remove(player.userID);
+            sheets.UpdateUser(player);
         }
 
         public void messageReceived(MessageEventArgs e)
@@ -117,9 +131,17 @@ namespace StatBot
         public bool isMember(ulong id)
         {
             Server server = discord.GetServer(serverID);
-            Role memberRole = server.GetRole(317760845771702272);
+            IEnumerable<Role> roles = server.GetUser(id).Roles;
 
-            return server.GetUser(id).HasRole(memberRole);
+            foreach(Role role in roles)
+            {
+                if (role.Name.ToLower().Equals("member"))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
