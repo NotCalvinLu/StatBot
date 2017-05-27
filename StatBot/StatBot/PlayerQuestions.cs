@@ -13,7 +13,7 @@ namespace StatBot
     {
         StatBot main;
 
-        public enum CharClass { Berserker, Dark_Knight, Kunoichi, Maehwa, Musa, Ninja, Ranger, Sorceress, Tamer, Valkyrie, Warrior, Witch, Wizard }
+        public enum CharClass { Berserker, Dark_Knight, Kunoichi, Maehwa, Musa, Ninja, Ranger, Sorceress, Striker, Tamer, Valkyrie, Warrior, Witch, Wizard }
 
         int curQuestion = 0;
         User user;
