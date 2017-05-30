@@ -135,7 +135,7 @@ namespace StatBot
 
             foreach(Role role in roles)
             {
-                if (role.Name.ToLower().Equals("member"))
+                if (role.Name.ToLower().Equals("member") || role.Name.ToLower().Equals("lead group♠"))
                 {
                     return true;
                 }
