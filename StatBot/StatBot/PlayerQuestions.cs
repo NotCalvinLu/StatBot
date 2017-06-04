@@ -80,7 +80,7 @@ namespace StatBot
                     question = $"How much __DP__ does {charName} have?";
                     break;
                 case 7:
-                    question = "Please open the __I__ and ___P__ menus in BDO and take a screenshot of your stats. Then send it to me right here.";
+                    question = "Please open the __I__ and __P__ menus in BDO and take a screenshot of your stats. Then send it to me right here.";
                     break;
                 case 8:
                     question = $"What is the next gear upgrade planned for {charName}? (Type as much as you need)";
