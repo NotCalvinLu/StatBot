@@ -135,7 +135,23 @@ namespace StatBot
 
             foreach(Role role in roles)
             {
-                if (role.Name.ToLower().Equals("member") || role.Name.ToLower().Equals("lead group♠"))
+                if (role.Name.ToLower().Equals("member") || role.Name.ToLower().Equals("lead group♠") || role.Name.ToLower().Equals("guild master"))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool isAdmin(ulong id)
+        {
+            Server server = discord.GetServer(serverID);
+            IEnumerable<Role> roles = server.GetUser(id).Roles;
+
+            foreach (Role role in roles)
+            {
+                if (role.Name.ToLower().Equals("lead group♠") || role.Name.ToLower().Equals("guild master"))
                 {
                     return true;
                 }
