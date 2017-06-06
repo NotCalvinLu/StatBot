@@ -21,6 +21,8 @@ namespace StatBot
         static string[] Scopes = { SheetsService.Scope.Spreadsheets };
         static string ApplicationName = "Google Sheets API for StatBot";
 
+        static string spreadSheetId = "1QjRNBh9_2SOdPQPN2JAjW_2TWl_LOGAGGsFD3ZNqNG0";
+
         SheetsService service;
 
         public SheetsWrapper(StatBot main)
@@ -55,7 +57,6 @@ namespace StatBot
         {
             int rowNum = GetRowNum(player.userID);
 
-            string spreadSheetId = "1QjRNBh9_2SOdPQPN2JAjW_2TWl_LOGAGGsFD3ZNqNG0";
             string range = String.Format("PlayerStats!A{0}:O", rowNum);
 
             ValueRange valueRange = new ValueRange()
@@ -69,6 +70,38 @@ namespace StatBot
             SpreadsheetsResource.ValuesResource.UpdateRequest update = service.Spreadsheets.Values.Update(valueRange, spreadSheetId, range);
             update.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
             UpdateValuesResponse result = update.Execute();
+        }
+
+        public bool deleteUser(ulong id)
+        {
+            if (!IsUserInTable(id)) return false;
+
+            int row = GetRowNum(id);
+
+            Request requestBody = new Request()
+            {
+                DeleteDimension = new DeleteDimensionRequest()
+                {
+                    Range = new DimensionRange()
+                    {
+                        SheetId = 0,
+                        Dimension = "ROWS",
+                        StartIndex = row - 1,
+                        EndIndex = row
+                    }
+                }
+            };
+
+            List<Request> requestContainer = new List<Request>();
+            requestContainer.Add(requestBody);
+
+            BatchUpdateSpreadsheetRequest deleteRequest = new BatchUpdateSpreadsheetRequest();
+            deleteRequest.Requests = requestContainer;
+
+            SpreadsheetsResource.BatchUpdateRequest deletion = new SpreadsheetsResource.BatchUpdateRequest(service, deleteRequest, spreadSheetId);
+            deletion.Execute();
+
+            return true;
         }
 
         public int GetRowNum(ulong userID)

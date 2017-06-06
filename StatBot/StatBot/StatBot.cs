@@ -51,6 +51,13 @@ namespace StatBot
                     viewCommand(e);
                 });
 
+            commands.CreateCommand("delete")
+                .Parameter("PlayerID", ParameterType.Required)
+                .Do((e) =>
+                {
+                    deleteCommand(e);
+                });
+
             discord.ExecuteAndWait(async () =>
             {
                 await discord.Connect("Mjg2NjIwMjcyMDI5ODU5ODQw.DAjonA.z6aD4yhDPFJWzY2bOgP7Zxb0mcc", TokenType.Bot);
@@ -89,6 +96,30 @@ namespace StatBot
             if (e.Channel.Id != 280444392756609024) return;
 
             e.Channel.SendMessage($"View guild stats here:\n{sheetLocation}");
+        }
+
+        public void deleteCommand(CommandEventArgs e)
+        {
+            if (e.Channel.Id != 280444392756609024) return;
+
+            if (!isAdmin(e.User.Id)) return;
+
+            ulong id;
+            if (ulong.TryParse(e.GetArg("PlayerID"), out id))
+            {
+                if (sheets.deleteUser(id))
+                {
+                    e.Channel.SendMessage($"{e.User.Mention} Deleted the user ID: {id}");
+                }
+                else
+                {
+                    e.Channel.SendMessage($"{e.User.Mention} Could not find user with ID: {id}");
+                }
+            }
+            else
+            {
+                e.Channel.SendMessage($"{e.User.Mention} Wrong usage of command. Correct usage:\n{Format.Code("!delete [UserID]")}");
+            }
         }
 
         public void updateUser(PlayerQuestions player)
