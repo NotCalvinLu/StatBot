@@ -13,7 +13,7 @@ namespace StatBot
         DiscordClient discord;
 
         ulong serverID = 155415749962366976;
-        public string sheetLocation = "https://docs.google.com/spreadsheets/d/1QjRNBh9_2SOdPQPN2JAjW_2TWl_LOGAGGsFD3ZNqNG0/edit?usp=sharing";
+        public string sheetLocation = "https://docs.google.com/spreadsheets/d/1QjRNBh9_2SOdPQPN2JAjW_2TWl_LOGAGGsFD3ZNqNG0/pubhtml?gid=2021231396&single=true";
 
         Dictionary<ulong, PlayerQuestions> questions = new Dictionary<ulong, PlayerQuestions>();
 
