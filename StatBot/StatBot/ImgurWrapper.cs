@@ -2,34 +2,27 @@
 using Imgur.API.Authentication.Impl;
 using Imgur.API.Endpoints.Impl;
 using Imgur.API.Models;
-using System;
-using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StatBot
 {
-    class ImgurWrapper
+    public class ImgurWrapper
     {
-        StatBot main;
+        static readonly string ClientId = ConfigurationManager.AppSettings.Get("ImgurApi_ClientId");
+        static readonly string ClientSecret = ConfigurationManager.AppSettings.Get("ImgurApi_ClientSecret");
+        private readonly ImgurClient _imgurClient;
 
-        static string clientID = "82b177039bae94e";
-        static string clientSecret = "a1c41a501a279f07f9d8d1f68d2433b428cb02a1";
-
-        ImgurClient client = new ImgurClient(clientID, clientSecret);
-
-        public ImgurWrapper(StatBot main)
+        public ImgurWrapper()
         {
-            this.main = main;
+            _imgurClient = new ImgurClient(ClientId, ClientSecret);
         }
 
-        public string uploadImage(string location)
+        public string UploadImage(string location)
         {
             try
             {
-                var endpoint = new ImageEndpoint(client);
+                var endpoint = new ImageEndpoint(_imgurClient);
                 IImage image;
                 using (var fs = new FileStream(location, FileMode.Open))
                 {

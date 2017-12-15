@@ -2,60 +2,41 @@
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Google.Apis.Services;
-using Google.Apis.Util.Store;
-
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
+using System.Configuration;
 using System.Threading;
 
 namespace StatBot
 {
-    class SheetsWrapper
+    public class SheetsWrapper
     {
-        StatBot main;
+        private readonly SheetsService _sheetService;
+        private readonly string _sheetId;
 
-        static string[] Scopes = { SheetsService.Scope.Spreadsheets };
-        static string ApplicationName = "Google Sheets API for StatBot";
-
-        static string spreadSheetId = "1QjRNBh9_2SOdPQPN2JAjW_2TWl_LOGAGGsFD3ZNqNG0";
-
-        SheetsService service;
-
-        public SheetsWrapper(StatBot main)
+        public SheetsWrapper()
         {
-            this.main = main;
-
-            UserCredential credential;
-
-            using (var stream = new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
+            UserCredential credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+            new ClientSecrets
             {
-                //string credPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Personal);
-                //credPath = Path.Combine(credPath, ".credentials/sheets.googleapis.com-dotnet-statbot.json");
-                string credPath = ".credentials/sheets.googleapis.com-dotnet-statbot.json";
+                ClientId = ConfigurationManager.AppSettings.Get("GoogleApi_ClientId"),
+                ClientSecret = ConfigurationManager.AppSettings.Get("GoogleApi_ClientSecret")
+            },
+            new List<string> { SheetsService.Scope.Spreadsheets },
+            "user",
+            CancellationToken.None).Result;
 
-                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.Load(stream).Secrets,
-                    Scopes,
-                    "user",
-                    CancellationToken.None,
-                    new FileDataStore(credPath, true)).Result;
-                Console.WriteLine("Credential file saved to: " + credPath);
-            }
-
-            service = new SheetsService(new BaseClientService.Initializer()
+            _sheetService = new SheetsService(new BaseClientService.Initializer
             {
-                HttpClientInitializer = credential,
-                ApplicationName = ApplicationName,
+                ApplicationName = ConfigurationManager.AppSettings.Get("GoogleApi_Name"),
+                HttpClientInitializer = credential
             });
+            _sheetId = ConfigurationManager.AppSettings.Get("GoogleApi_SheetId");
         }
 
-        public void UpdateUser(PlayerQuestions player)
+        public void UpdateUser(StatData statData)
         {
-            int rowNum = GetRowNum(player.userID);
+            int rowNum = GetRowNum(statData.UserId);
 
             string range = String.Format("PlayerStats!A{0}:O", rowNum);
 
@@ -64,15 +45,15 @@ namespace StatBot
                 MajorDimension = "ROWS"
             };
 
-            var oblist = player.GetList();
+            var oblist = statData.GetDataToPrint();
             valueRange.Values = new List<IList<object>> { oblist };
 
-            SpreadsheetsResource.ValuesResource.UpdateRequest update = service.Spreadsheets.Values.Update(valueRange, spreadSheetId, range);
+            SpreadsheetsResource.ValuesResource.UpdateRequest update = _sheetService.Spreadsheets.Values.Update(valueRange, _sheetId, range);
             update.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
             UpdateValuesResponse result = update.Execute();
         }
 
-        public bool deleteUser(ulong id)
+        public bool DeleteUser(ulong id)
         {
             if (!IsUserInTable(id)) return false;
 
@@ -98,7 +79,7 @@ namespace StatBot
             BatchUpdateSpreadsheetRequest deleteRequest = new BatchUpdateSpreadsheetRequest();
             deleteRequest.Requests = requestContainer;
 
-            SpreadsheetsResource.BatchUpdateRequest deletion = new SpreadsheetsResource.BatchUpdateRequest(service, deleteRequest, spreadSheetId);
+            SpreadsheetsResource.BatchUpdateRequest deletion = new SpreadsheetsResource.BatchUpdateRequest(_sheetService, deleteRequest, _sheetId);
             deletion.Execute();
 
             return true;
@@ -154,9 +135,8 @@ namespace StatBot
 
         public IList<IList<Object>> GetTableValues()
         {
-            string spreadSheetId = "1QjRNBh9_2SOdPQPN2JAjW_2TWl_LOGAGGsFD3ZNqNG0";
             string range = "PlayerStats!A2:O";
-            SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadSheetId, range);
+            SpreadsheetsResource.ValuesResource.GetRequest request = _sheetService.Spreadsheets.Values.Get(_sheetId, range);
 
             ValueRange response = request.Execute();
 
