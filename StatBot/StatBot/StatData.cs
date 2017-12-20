@@ -22,7 +22,8 @@ namespace StatBot
             Valkyrie,
             Warrior,
             Witch,
-            Wizard
+            Wizard,
+            Mystic
         }
 
         public ulong UserId;
