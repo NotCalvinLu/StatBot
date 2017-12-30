@@ -39,10 +39,7 @@ namespace PartyBot
         {
             if (IsMessageSentFromBotChannel())
             {
-                if (await HasPrivilegeAsync())
-                {
-                    await Context.Channel.SendMessageAsync($"View guild stats here:\n{_googlePublicStatSheet}");
-                }
+                await Context.Channel.SendMessageAsync($"View guild stats here:\n{_googlePublicStatSheet}");
             }
         }
 
